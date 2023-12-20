@@ -1,0 +1,35 @@
+현재 시각 : 2023-12-20 09:32:37, 토큰만료 시각: 2023-12-20 16:22:54
+접근토큰이 유효하므로, 바로 진행하겠습니다.
+
+Login : excel-editor-3
+
+Loading...
+USO
+IAU
+DBC
+EWJ
+VOO
+VTI
+MCHI
+EWH
+EZA
+VWO
+EWG
+EWC
+EDV
+LTPZ
+IEF
+EMLC
+HYG
+43 - 26 = 17 (총 17 종목 : 기존종목, 신규종목, 이탈종목 포함)
+Received 'portfolio_input_ki' from Google Sheet.
+
+Loading...
+Received market data from Ticker Book to 'portfolio_input_ki'.
+
+Loading...
+Updated market data, current qty of 'portfolio_input_ki' to Google Sheet.
+
+
+실행 시간: 16.17054 초
+
