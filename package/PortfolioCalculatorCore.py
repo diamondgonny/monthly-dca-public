@@ -1,5 +1,5 @@
-from PortfolioRebalancingCore import *
-from PortfolioRebalancingPrint import show_dashboard
+from package.PortfolioRebalancingCore import *
+from package.PortfolioRebalancingPrint import show_dashboard
 import copy
 
 
@@ -43,7 +43,7 @@ def estimate_original(buyable_cash_dollar: float, **portfolio_dict):
     return realtime_total_etfs_dollar, to_order_etfs_dollar, portfolio_dict
 
 
-def estimate_adjusted_1_filter(total_etfs_dollar: float, buyable_cash_dollar: float, **portfolio_dict):
+def assist_adjusted_1(total_etfs_dollar: float, buyable_cash_dollar: float, to_show_dashboard: bool, **portfolio_dict):
     exclusion_etfs_dollar = 0.00  # **현재 열외할 자산금액의 합계 (주문 가능 현금 : buyable_cash_dollar로 배분해야 함)**
     exclusion_current_percentage = 0.00
     exclusion_target_percentage = 0.00
@@ -73,12 +73,13 @@ def estimate_adjusted_1_filter(total_etfs_dollar: float, buyable_cash_dollar: fl
         list[13] = round((list[8] - etfs_cash_sum_adj * (list[10] / 100)) / etfs_cash_sum_adj * 100, 4)
         to_order_etfs_dollar += list[12]
 
-    show_dashboard(total_etfs_dollar_adj, buyable_cash_dollar, to_order_etfs_dollar, False, **portfolio_dict_adj)
+    if to_show_dashboard:
+        show_dashboard(total_etfs_dollar_adj, buyable_cash_dollar, to_order_etfs_dollar, False, **portfolio_dict_adj)
 
     return total_etfs_dollar_adj, to_order_etfs_dollar, portfolio_dict_adj
 
 
-def estimate_adjusted_1(total_etfs_dollar: float, buyable_cash_dollar: float, **portfolio_dict):
+def estimate_adjusted_1(total_etfs_dollar: float, buyable_cash_dollar: float, to_show_dashboard: bool, **portfolio_dict):
     """(선택사항) buy-only로 만드는 로직"""
     total_etfs_dollar_adj = total_etfs_dollar
     portfolio_dict_adj = portfolio_dict
@@ -86,8 +87,8 @@ def estimate_adjusted_1(total_etfs_dollar: float, buyable_cash_dollar: float, **
     while True:
         """(매수only 로직을 만들고자) 목표배분율을 초과하는 종목의 목록을 반복문을 돌려서 걸러질 때까지 필터링하고 계산함"""
         until_no_more_etf_to_sell = True
-        total_etfs_dollar_adj, to_order_etfs_dollar, portfolio_dict_adj = estimate_adjusted_1_filter(
-            total_etfs_dollar_adj, buyable_cash_dollar, **portfolio_dict_adj)
+        total_etfs_dollar_adj, to_order_etfs_dollar, portfolio_dict_adj = assist_adjusted_1(total_etfs_dollar_adj, buyable_cash_dollar,
+                                                                                            to_show_dashboard, **portfolio_dict_adj)
         for ticker, list in portfolio_dict_adj.items():
             if list[11] < 0:
                 until_no_more_etf_to_sell = False
@@ -127,15 +128,32 @@ def estimate_adjusted_1(total_etfs_dollar: float, buyable_cash_dollar: float, **
 
 def estimate_adjusted_2(total_etfs_dollar: float, buyable_cash_dollar: float, **portfolio_dict):
     """잔돈으로 마저 사들이는 로직 (아래 계산식은 구매가와 거래수수료를 반영하여 차감)"""
-
     to_order_etfs_dollar = 0.00
     for ticker, list in portfolio_dict.items():
         to_order_etfs_dollar += list[12]
     remained_balance = buyable_cash_dollar - to_order_etfs_dollar
     """etfs_cash_sum > 0이 아니면, 오류 발생"""
     etfs_cash_sum = total_etfs_dollar + buyable_cash_dollar
-    print(">> 이미 위의 계산표대로 주문하고 난 후, 낱개주문한다고 가정 (즉, 수수료 계산이 보수적임)\n")
 
+    sell_amount_abs = 0
+    for ticker, list in portfolio_dict.items():
+        if list[12] < 0:
+            sell_amount_abs += abs(list[12])
+    print('Buy-only는 해당사항 없음, 매도 시 주문가능금액 차감액수 계산(전체 매도금액의 1.068% ~ 1.215% 가량 제외됨)')
+    print('{0:.3f} - {1:.3f}(매도금액의 1.5%) = {2:.3f}'.format(remained_balance, sell_amount_abs * 1.5 / 100,
+                                                           remained_balance - (sell_amount_abs * 1.5 / 100)))
+    remained_balance -= sell_amount_abs * 1.5 / 100
+
+    buy_amount_abs = 0
+    for ticker, list in portfolio_dict.items():
+        if list[12] > 0:
+            buy_amount_abs += list[12]
+    print('매수 시 주문가능금액 차감액수 계산(기본 거래수수료인 전체 매수금액의 0.25%로 가정)')
+    print('{0:.3f} - {1:.3f}(매수금액의 0.25%) = {2:.3f}'.format(remained_balance, buy_amount_abs * 0.25 / 100,
+                                                            remained_balance - (buy_amount_abs * 0.25 / 100)))
+    remained_balance -= buy_amount_abs * 0.25 / 100
+
+    print('>> 이미 위의 계산표대로 주문하고 난 후, 낱개주문한다고 가정 (즉, 수수료 계산이 보수적임)\n')
     while True:
         """잔액이 고갈될 때까지 추가주문하는 계산식 (단, '주문금액 = n%상향매수 * 거래수수료 * 현재가' 임을 감안함)"""
         """+1주 했을 경우의 각각의 예상 괴리율(%)을 리스트에 넣고 max sort"""
@@ -146,7 +164,7 @@ def estimate_adjusted_2(total_etfs_dollar: float, buyable_cash_dollar: float, **
 
         for ticker, list in portfolio_dict.items():
             # (1)남아있는 잔액보다 단가가 비싸거나, (2)목표배분율이 0%인 종목은 추가주문대상에서 제외
-            if remained_balance < list[2] * (1 + LIMITED_ORDER_DISADVANTAGE_RATE_PCT / 100) * (1 + TRANSACTION_FEE_RATE_PCT / 100):
+            if remained_balance < list[2] * (1 + LIMITED_ORDER_DISADVANTAGE_RATE_PCT / 100) * (1 + 0.25 / 100):
                 continue
             elif list[10] == 0:
                 continue
@@ -161,15 +179,15 @@ def estimate_adjusted_2(total_etfs_dollar: float, buyable_cash_dollar: float, **
 
         for ticker, value in portfolio_disparate_rate_dict.items():
             if value != 100.00:
-                print(f"'{ticker}': {value:.4f}", end=" ")
+                print(f"'{ticker}': {value:.4f}", end=' ')
             # else:
-            #     print(f"'{ticker}': {value:.2f}", end=" ")
+            #     print(f"'{ticker}': {value:.2f}", end=' ')
 
         if portfolio_disparate_rate_dict[ticker_to_add] == 100.00:
-            print("FINISHED\n")
+            print('FINISHED\n')
             break
         else:
-            print(f"\n {ticker_to_add:<4} (+1)", end=" ")
+            print(f'\n {ticker_to_add:<4} (+1)', end=' ')
 
         ticker_to_add_list = portfolio_dict[ticker_to_add]
         ticker_to_add_list[7] = ticker_to_add_list[7] + 1
@@ -180,11 +198,10 @@ def estimate_adjusted_2(total_etfs_dollar: float, buyable_cash_dollar: float, **
         ticker_to_add_list[12] = ticker_to_add_list[2] * ticker_to_add_list[11]
         ticker_to_add_list[13] = (ticker_to_add_list[8] - etfs_cash_sum * (ticker_to_add_list[10] / 100)) / etfs_cash_sum * 100
         to_order_etfs_dollar += ticker_to_add_list[2]
-        remained_balance -= ticker_to_add_list[2] * (1 + LIMITED_ORDER_DISADVANTAGE_RATE_PCT / 100) * (
-                    1 + TRANSACTION_FEE_RATE_PCT / 100)
-        print("    // ", end="")
-        print(f"{1 + LIMITED_ORDER_DISADVANTAGE_RATE_PCT / 100:.4f} * {1 + TRANSACTION_FEE_RATE_PCT / 100:.4f} * ${ticker_to_add_list[2]}"
-              f"({LIMITED_ORDER_DISADVANTAGE_RATE_PCT}%상향매수 * {TRANSACTION_FEE_RATE_PCT}%거래수수료 * 현재가)로 낱개구매 후 예상잔액 :"
-              f"${remained_balance:.2f}\n")
+        remained_balance -= ticker_to_add_list[2] * (1 + LIMITED_ORDER_DISADVANTAGE_RATE_PCT / 100) * (1 + 0.25 / 100)
+        print('    // ', end='')
+        print(f'{1 + LIMITED_ORDER_DISADVANTAGE_RATE_PCT / 100:.4f} * {1 + 0.25 / 100:.4f} * ${ticker_to_add_list[2]}'
+              f'({LIMITED_ORDER_DISADVANTAGE_RATE_PCT}%상향매수 * 0.25%거래수수료(가정) * 현재가)로 낱개구매 후 예상잔액 :'
+              f'${remained_balance:.2f}\n')
 
     return total_etfs_dollar, to_order_etfs_dollar, portfolio_dict

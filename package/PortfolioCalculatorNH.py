@@ -1,25 +1,26 @@
 from gspread import Worksheet
-from PortfolioRebalancingCalc import estimate_original
-from PortfolioRebalancingCalc import estimate_adjusted_1
-from PortfolioRebalancingCalc import estimate_adjusted_2
-from PortfolioRebalancingPrint import show_dashboard
+from package.PortfolioCalculatorCore import estimate_original
+from package.PortfolioCalculatorCore import estimate_adjusted_1
+from package.PortfolioCalculatorCore import estimate_adjusted_2
+from package.PortfolioRebalancingPrint import show_dashboard
 import datetime
 import json
 
 
-def get_portfolio_from_google_sheet(pf_code: str, worksheet: Worksheet, row_base_pointer: int, row_stack_pointer: int):
+def get_portfolio_from_google_sheet_nh(pf_code: str, worksheet: Worksheet, row_base_pointer: int, row_stack_pointer: int):
     """여기서 구글시트 API가 감당 가능한 종목 수는, (60 - 3) / 4 = 최대 14개 정도 까지로 확인됨 (API 호출 시마다 약간의 오차 존재)"""
     row_pointer = row_base_pointer
     portfolio_input = {}
-    print("Loading...")
+    print('Loading...')
+    print('(import)')
 
     try:
-        exchange_rate = float(worksheet.cell(2, 19).value.lstrip('₩').replace(',', ''))
+        exchange_rate = float(worksheet.cell(2, 20).value.lstrip('₩').replace(',', ''))
     except Exception as e:
         with open('./config/backup-exchange-rate.json', 'r', encoding='UTF-8') as f:
             exchange_rate_output = json.load(f)
         update_date_str = exchange_rate_output['update_date']
-        update_date = datetime.datetime.strptime(update_date_str, "%Y-%m-%d %H:%M:%S")
+        update_date = datetime.datetime.strptime(update_date_str, '%Y-%m-%d %H:%M:%S')
         current_date = datetime.datetime.now()
         exchange_rate = exchange_rate_output['exchange_rate']
         is_today = update_date.date() == current_date.date()
@@ -38,9 +39,9 @@ def get_portfolio_from_google_sheet(pf_code: str, worksheet: Worksheet, row_base
         asset_class = worksheet.cell(row_pointer, 3).value
         current_qty = int(worksheet.cell(row_pointer, 7).value)
         current_pct = int(worksheet.cell(row_pointer, 10).value.rstrip('%'))
-        input_list = ["", "", 0, 0, 0]
-        input_list[0] = asset_class if asset_class is not None else ""
-        input_list[1] = "(market)"
+        input_list = ['', '', 0, 0, 0]
+        input_list[0] = asset_class if asset_class is not None else ''
+        input_list[1] = '(market)'
         input_list[2] = current_qty if current_qty is not None else 0
         input_list[3] = current_pct if current_pct is not None else 0
         input_list[4] = input_list[3]  # target_pct == current_pct
@@ -58,13 +59,14 @@ def get_portfolio_from_google_sheet(pf_code: str, worksheet: Worksheet, row_base
 
 def estimate_portfolio_and_show_progress_nh(buyable_cash_dollar: float, **portfolio_dict):
     total_etfs_dollar, to_order_etfs_dollar, portfolio_dict = estimate_original(buyable_cash_dollar, **portfolio_dict)
-    print("estimate_original)", end=" ")
+    print('estimate_original)', end=' ')
     show_dashboard(total_etfs_dollar, buyable_cash_dollar, to_order_etfs_dollar, False, **portfolio_dict)
-    total_etfs_dollar, to_order_etfs_dollar, portfolio_dict = estimate_adjusted_1(total_etfs_dollar, buyable_cash_dollar, **portfolio_dict)
-    print("estimate_adjusted_1)", end=" ")
+    total_etfs_dollar, to_order_etfs_dollar, portfolio_dict = estimate_adjusted_1(total_etfs_dollar, buyable_cash_dollar, False,
+                                                                                  **portfolio_dict)
+    print('estimate_adjusted_1)', end=' ')
     show_dashboard(total_etfs_dollar, buyable_cash_dollar, to_order_etfs_dollar, False, **portfolio_dict)
     total_etfs_dollar, to_order_etfs_dollar, portfolio_dict = estimate_adjusted_2(total_etfs_dollar, buyable_cash_dollar, **portfolio_dict)
-    print("estimate_adjusted_2)", end=" ")
+    print('estimate_adjusted_2)', end=' ')
     show_dashboard(total_etfs_dollar, buyable_cash_dollar, to_order_etfs_dollar, False, **portfolio_dict)
 
     return buyable_cash_dollar, portfolio_dict

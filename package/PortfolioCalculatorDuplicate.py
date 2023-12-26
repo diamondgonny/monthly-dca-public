@@ -1,9 +1,8 @@
 from gspread import Spreadsheet
 from gspread import Worksheet
-from FuncCommon import path_google_sheet
-from FuncCommon import auth_google_file
 import datetime
 import json
+import time
 
 
 def check_name_conflict(existing_sheet_name: str, to_copy_sheet_name_check: str, book: Spreadsheet, to_copy_sheet: Worksheet):
@@ -36,7 +35,7 @@ def find_existing_sheet(existing_sheet_name: str, to_copy_sheet_name: str, book:
     else:
         raise Exception(f"Sheet '{existing_sheet_name}' not found in the spreadsheet.")
 
-    return to_copy_sheet_name, to_copy_sheet
+    return to_copy_sheet_name, existing_sheet
 
 
 def put_excel_url_sheet_name_to_json_file(spreadsheet_url: str, to_copy_sheet_name: str):
@@ -44,15 +43,24 @@ def put_excel_url_sheet_name_to_json_file(spreadsheet_url: str, to_copy_sheet_na
         'spreadsheet_url': spreadsheet_url,
         'sheet_name': to_copy_sheet_name
     }
-    with open('./config/excel-url-sheet-name.json', 'w', encoding='UTF-8') as f:
+    with open('./config/excel-addr-sheet-name.json', 'w', encoding='UTF-8') as f:
         json.dump(excel_url_sheet, f, indent=2, sort_keys=False)
-        print(f'./config/excel-url-sheet-name.json에 복사된 시트({to_copy_sheet_name})의 경로를 남겼습니다.')
+        print(f'./config/excel-addr-sheet-name.json에 복사된 시트({to_copy_sheet_name})의 경로를 남겼습니다.')
 
 
-def backup_exchange_rate(to_copy_sheet: Worksheet):
+def backup_exchange_rate(existing_sheet: Worksheet):
     # 간혹 float 타입의 환율 대신, 문자열인 '로딩 중...'을 입력받아 생기는 문제를 보완하고자 backup
-    update_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    exchange_rate = float(to_copy_sheet.cell(2, 19).value.lstrip('₩').replace(',', ''))
+    update_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    exchange_rate = 0
+    while True:
+        try:
+            exchange_rate = float(existing_sheet.cell(2, 20).value.lstrip('₩').replace(',', ''))
+        except ValueError as e:
+            print("환율을 '로드 중'일 때 불러왔기 떄문에 ValueError 발생... 5초 후 다시 시도하겠습니다.")
+            time.sleep(5)
+        if exchange_rate:
+            break
+
     exchange_rate_dict = {
         'update_date': update_date,
         'exchange_rate': exchange_rate
@@ -60,20 +68,3 @@ def backup_exchange_rate(to_copy_sheet: Worksheet):
     with open(f'./config/backup-exchange-rate.json', 'w', encoding='UTF-8') as f:
         json.dump(exchange_rate_dict, f, indent=2, sort_keys=False)
         print(f'./config/backup-exchange-rate.json에 환율 백업 데이터를 남겼습니다.')
-
-
-"""-----------------------------------------------------------------------------------------"""
-
-spreadsheet_url, _ = path_google_sheet()
-
-# Input
-book = auth_google_file("excel-editor-5.json", spreadsheet_url)
-existing_sheet_name = '*dashboard'
-to_copy_sheet_name = datetime.datetime.now().strftime("%Y%m%d")  # ex. 20240101
-
-# Process
-to_copy_sheet_name, to_copy_sheet = find_existing_sheet(existing_sheet_name, to_copy_sheet_name, book)
-
-# Output
-backup_exchange_rate(to_copy_sheet)
-put_excel_url_sheet_name_to_json_file(spreadsheet_url, to_copy_sheet_name)

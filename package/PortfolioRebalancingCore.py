@@ -46,21 +46,21 @@ def check_token_expired():
     """토큰 만료 검사"""
     global g_access_token
     global g_access_token_expired
-    print("현재 시각 : {}, 토큰만료 시각: {}".format(time.strftime("%Y-%m-%d %H:%M:%S"), g_access_token_expired))
-    if time.strftime("%Y-%m-%d %H:%M:%S") > g_access_token_expired:
-        print("접근토큰이 없거나 만료되었으므로, 새로 발급받겠습니다...")
+    print('현재 시각 : {}, 토큰만료 시각: {}'.format(time.strftime('%Y-%m-%d %H:%M:%S'), g_access_token_expired))
+    if time.strftime('%Y-%m-%d %H:%M:%S') > g_access_token_expired:
+        print('접근토큰이 없거나 만료되었으므로, 새로 발급받겠습니다...')
         try:
             g_access_token, g_access_token_expired = get_access_token()
             _cfg.update({'access_token': g_access_token, 'access_token_expired': g_access_token_expired})
             with open('config/kis-developer.json', 'w', encoding='UTF-8') as fwrite:
                 json.dump(_cfg, fwrite, indent=2, sort_keys=False)  # serialize
-            print("접근토큰 발급 완료.\n")
+            print('접근토큰 발급 완료.\n')
             time.sleep(1)
         except Exception as e:
-            print(f"[접근토큰 발급 오류]{e}")
+            print(f'[접근토큰 발급 오류]{e}')
             time.sleep(1)
     else:
-        print("접근토큰이 유효하므로, 바로 진행하겠습니다.\n")
+        print('접근토큰이 유효하므로, 바로 진행하겠습니다.\n')
 
 
 def hashkey(datas):
@@ -107,13 +107,13 @@ def get_portfolio_mkt_qty():
     res = requests.get(URL, headers=headers, params=params)
     portfolio_mkt_qty = res.json()['output1']
     portfolio_mkt_qty_dict = {}
-    # send_message(f"====보유수량====")
+    # send_message(f'====보유수량====')
     for pack in portfolio_mkt_qty:
         if int(pack['ovrs_cblc_qty']) > 0:
             portfolio_mkt_qty_list = [pack['ovrs_excg_cd'], int(pack['ovrs_cblc_qty'])]
             portfolio_mkt_qty_dict[pack['ovrs_pdno']] = portfolio_mkt_qty_list
             # send_message(f"{pack['ovrs_item_name']}({pack['ovrs_pdno']}): {pack['ovrs_cblc_qty']}주")
-    # send_message(f"=====================")
+    # send_message(f'=====================')
     return portfolio_mkt_qty_dict
 
 
@@ -199,7 +199,7 @@ def get_asset_info_won():
         unsettled_buy_amount_etfs_won), int(unsettled_sell_amount_etfs_won)
 
 
-def get_current_price(ticker="AAPL", market="NASD"):
+def get_current_price(ticker='AAPL', market='NASD'):
     """현재가 조회"""
     if market == 'AMEX':  # API의 비일관적인 시장분류코드로 인한 코드변환
         market = 'AMS'
@@ -226,7 +226,7 @@ def get_current_price(ticker="AAPL", market="NASD"):
     return float(current_price)
 
 
-def get_bid_ask_price(ticker="AAPL", market="NASD"):
+def get_bid_ask_price(ticker='AAPL', market='NASD'):
     """매수1호가, 매도1호가 조회"""
     if market == 'AMEX':  # API의 비일관적인 시장분류코드로 인한 코드변환
         market = 'AMS'
@@ -257,7 +257,7 @@ def get_bid_ask_price(ticker="AAPL", market="NASD"):
     return float(bid), float(ask)
 
 
-def sell(ticker="AAPL", market="NASD", qty=1, price=12.34):
+def sell(ticker='AAPL', market='NASD', qty=1, price=12.34):
     """매도(지정가)"""
     PATH = "uapi/overseas-stock/v1/trading/order"
     URL = f"{URL_BASE}/{PATH}"
@@ -282,16 +282,16 @@ def sell(ticker="AAPL", market="NASD", qty=1, price=12.34):
     }
     res = requests.post(URL, data=json.dumps(data), headers=headers)
     if res.json()['rt_cd'] == '0':
-        send_message(f"성공!")
-        print(f"{str(res.json())}")
+        send_message(f'성공!')
+        print(f'{str(res.json())}')
         return True
     else:
-        send_message(f"실패;")
-        print(f"{str(res.json())}")
+        send_message(f'실패;')
+        print(f'{str(res.json())}')
         return False
 
 
-def buy(ticker="AAPL", market="NASD", qty=1, price=12.34):
+def buy(ticker='AAPL', market='NASD', qty=1, price=12.34):
     """매수(지정가)"""
     PATH = "uapi/overseas-stock/v1/trading/order"
     URL = f"{URL_BASE}/{PATH}"
@@ -316,19 +316,19 @@ def buy(ticker="AAPL", market="NASD", qty=1, price=12.34):
     }
     res = requests.post(URL, data=json.dumps(data), headers=headers)
     if res.json()['rt_cd'] == '0':
-        send_message(f"성공!")
-        print(f"{str(res.json())}")
+        send_message(f'성공!')
+        print(f'{str(res.json())}')
         return True
     else:
-        send_message(f"실패;")
-        print(f"{str(res.json())}")
+        send_message(f'실패;')
+        print(f'{str(res.json())}')
         return False
 
 
 def get_inquire_ccnl():
     """해외자산 주문체결내역 조회"""
     t_now = datetime.datetime.now(timezone('America/New_York'))  # 현지시각 (뉴욕 기준)
-    t_today_str = t_now.strftime("%Y%m%d")  # ex. 20240101
+    t_today_str = t_now.strftime('%Y%m%d')  # ex. 20240101
     # t_yesterday_int = int(t_today_str) - 1
     # t_yesterday_str = str(t_yesterday_int)
     PATH = "uapi/overseas-stock/v1/trading/inquire-ccnl"
@@ -339,6 +339,7 @@ def get_inquire_ccnl():
         "appKey": APP_KEY,
         "appSecret": APP_SECRET,
         "tr_id": "JTTT3001R",
+        "tr_cont": "",
         "custtype": "P"
     }
     params = {
@@ -360,21 +361,59 @@ def get_inquire_ccnl():
     res = requests.get(URL, headers=headers, params=params)
     today_order = res.json()['output']
     today_order_dict = {}
-    for pack in today_order:
-        sell_or_buy: str = 'sell' if pack['sll_buy_dvsn_cd'] == '01' else 'buy'
-        today_order_list = [int(pack['ft_ord_qty']), int(pack['ft_ccld_qty']), int(pack['nccs_qty']), sell_or_buy]
-        if pack['rvse_cncl_dvsn_name'] == '취소':
-            print(f"'{pack['pdno']}' 취소주문은 주문체결목록에서 열외함")
-            today_order_dict[pack['pdno']][0] -= int(pack['ft_ord_qty'])
-            today_order_dict[pack['pdno']][1] -= int(pack['ft_ccld_qty'])
-            today_order_dict[pack['pdno']][2] -= int(pack['nccs_qty'])
-        elif pack['pdno'] in today_order_dict:
-            print(f"'{pack['pdno']}'는 이미 주문체결목록에 존재하므로 병합함")
-            today_order_dict[pack['pdno']][0] += int(pack['ft_ord_qty'])
-            today_order_dict[pack['pdno']][1] += int(pack['ft_ccld_qty'])
-            today_order_dict[pack['pdno']][2] += int(pack['nccs_qty'])
-        else:
-            today_order_dict[pack['pdno']] = today_order_list
+    while True:
+        """----------------------------------------------------------------------------------"""
+        for pack in today_order:
+            sell_or_buy: str = 'sell' if pack['sll_buy_dvsn_cd'] == '01' else 'buy'
+            today_order_list = [int(pack['ft_ord_qty']), int(pack['ft_ccld_qty']), int(pack['nccs_qty']), sell_or_buy]
+            if pack['pdno'] in today_order_dict:
+                idx = 0 if sell_or_buy == 'sell' else 1
+                if pack['rvse_cncl_dvsn_name'] == '취소':
+                    today_order_dict[pack['pdno']][idx][0] -= int(pack['ft_ord_qty'])
+                    today_order_dict[pack['pdno']][idx][1] -= int(pack['ft_ccld_qty'])
+                    today_order_dict[pack['pdno']][idx][2] -= int(pack['nccs_qty'])
+                    if today_order_dict[pack['pdno']][idx][0] == 0:
+                        today_order_dict[pack['pdno']][idx] = ''
+                    if today_order_dict[pack['pdno']] == ['', '']:
+                        del today_order_dict[pack['pdno']]
+                    print(f"'{pack['pdno']}' 취소주문은 주문체결목록에서 열외함({sell_or_buy})")
+                    print('- ', pack['pdno'], today_order_list)
+                    print(today_order_dict)
+                elif isinstance(today_order_dict[pack['pdno']][idx], list):
+                    today_order_dict[pack['pdno']][idx][0] += int(pack['ft_ord_qty'])
+                    today_order_dict[pack['pdno']][idx][1] += int(pack['ft_ccld_qty'])
+                    today_order_dict[pack['pdno']][idx][2] += int(pack['nccs_qty'])
+                    print(f"'{pack['pdno']}'는 이미 주문체결목록에 존재하므로 병합함({sell_or_buy})")
+                    print('+ ', pack['pdno'], today_order_list)
+                    print(today_order_dict)
+                else:
+                    if sell_or_buy == 'sell':
+                        today_order_dict[pack['pdno']][0] = today_order_list
+                    elif sell_or_buy == 'buy':
+                        today_order_dict[pack['pdno']][1] = today_order_list
+                    print(f"'{pack['pdno']}'의 {sell_or_buy}를 추가함")
+                    print(today_order_dict)
+            else:
+                # 시간 순이므로, 주문하지도 않은 걸 취소처리하는 전산 오류는 일어나지 않는다고 가정(한투쪽 오류기 때문에)
+                # if pack['rvse_cncl_dvsn_name'] == '취소':
+                #     raise Exception('주문하지도 않은 걸 취소한다고?')
+                if sell_or_buy == 'sell':
+                    today_order_dict[pack['pdno']] = [today_order_list, '']
+                elif sell_or_buy == 'buy':
+                    today_order_dict[pack['pdno']] = ['', today_order_list]
+                print(f"'{pack['pdno']}'를 추가함")
+                print(today_order_dict)
+        """----------------------------------------------------------------------------------"""
+        if not res.json()['ctx_area_nk200'].isspace():  # 다음 페이지 조회
+            headers['tr_cont'] = 'N'
+            params['CTX_AREA_NK200'] = res.json()['ctx_area_nk200']
+            params['CTX_AREA_FK200'] = res.json()['ctx_area_fk200']
+            res = requests.get(URL, headers=headers, params=params)
+            today_order = res.json()['output']
+        else:  # 다음 페이지에 표시할 '주문체결내역'이 더 이상 없으면 'ctx_area_nk200'은 공란임
+            print()
+            break
+        """----------------------------------------------------------------------------------"""
     return today_order_dict
 
 
@@ -424,7 +463,7 @@ def launch_order(**portfolio_dict):
             break
     # 매도
     if to_sell:
-        send_message(f"[매도]")
+        send_message(f'[매도]')
         for ticker, list in portfolio_dict.items():
             market = list[1]  # 시장분류
             order_qty = list[11]  # 목표매매량(음수면 매도할 것)
@@ -432,18 +471,18 @@ def launch_order(**portfolio_dict):
             if order_qty < 0:
                 order_qty = abs(order_qty)  # 실제 수량으로 변환(절대값)
                 print(ticker, market, order_qty, round(current_price * (1 - LIMITED_ORDER_DISADVANTAGE_RATE_PCT / 100), 2))
-                send_message(f"{ticker} {order_qty}주 매도")
+                send_message(f'{ticker} {order_qty}주 매도')
                 """주의! 실제 매도주문 작동함"""
                 sell(ticker, market, order_qty, round(current_price * (1 - LIMITED_ORDER_DISADVANTAGE_RATE_PCT / 100), 2))
         time.sleep(5)  # 5초간 대기
     # 매수
-    send_message(f"[매수]")
+    send_message(f'[매수]')
     for ticker, list in portfolio_dict.items():
         market = list[1]
         order_qty = list[11]
         current_price = get_current_price(ticker, market)
         if order_qty > 0:
             print(ticker, market, order_qty, round(current_price * (1 + LIMITED_ORDER_DISADVANTAGE_RATE_PCT / 100), 2))
-            send_message(f"{ticker} {order_qty}주 매수")
+            send_message(f'{ticker} {order_qty}주 매수')
             """주의! 실제 매수주문 작동함"""
             buy(ticker, market, order_qty, round(current_price * (1 + LIMITED_ORDER_DISADVANTAGE_RATE_PCT / 100), 2))
