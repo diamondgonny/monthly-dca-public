@@ -60,7 +60,7 @@ def show_dashboard(total_etfs_dollar: float, buyable_cash_dollar: float, to_orde
     print(' (*)${0:>8.2f},{1:>6.2f}%       |        ${2:>8.2f},{3:>6.2f}%        |        ${4:>8.2f}         |'.format(
         etfs_cash_sum, current_rate_sum, etfs_cash_sum, target_rate_sum, to_order_etfs_dollar))
     print(' ₩Sum :                      |    ', end='')
-    print('    {0:>8}원               |        {1:>8}원               |        {2:>8}원         |'.format(
+    print('    {0:>8}원              |        {1:>8}원              |        {2:>8}원         |'.format(
         int(etfs_cash_sum * exchange_rate), int(etfs_cash_sum * exchange_rate), int(to_order_etfs_dollar * exchange_rate)))
     print('(*    : 해외주식평가금[실시간](${0:>.2f})에 주문가능현금(${1:>.2f})을 더한 값)'.format(total_etfs_dollar, buyable_cash_dollar))
     if to_real_trade:
