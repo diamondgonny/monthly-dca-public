@@ -3,7 +3,7 @@ from package.PortfolioCalculatorCommon import path_google_sheet, auth_google_she
 from package.PortfolioCalculatorCommon import convert_portfolio_to_estimate, put_portfolio_to_json_file
 from package.PortfolioCalculatorFillPurple import get_info_ki_from_google_sheet, get_qty_from_kis_developers
 from package.PortfolioCalculatorFillPurple import get_buyable_cash_from_kis_developers, put_mkt_qty_cash_to_google_sheet
-from package.PortfolioCalculatorDuplicate import find_existing_sheet_and_duplicate, backup_exchange_rate, put_excel_url_sheet_name_to_json_file
+from package.PortfolioCalculatorDuplicate import find_existing_sheet_and_duplicate, backup_exchange_rate, backup_sheet_name
 from package.PortfolioCalculatorKI import get_portfolio_from_google_sheet_ki_1, get_portfolio_from_google_sheet_ki_2
 from package.PortfolioCalculatorKI import estimate_portfolio_and_show_progress_ki
 from package.PortfolioCalculatorNH import get_portfolio_from_google_sheet_nh, estimate_portfolio_and_show_progress_nh
@@ -71,7 +71,7 @@ def main():
 
     # Save(.json)
     backup_exchange_rate(existing_sheet)
-    put_excel_url_sheet_name_to_json_file(spreadsheet_url, to_copy_sheet_name)
+    backup_sheet_name(spreadsheet_url, to_copy_sheet_name)
 
     g_end_time = time.time()
     print(f'실행 시간: {g_end_time - g_start_time:.5f} 초\n')

@@ -7,7 +7,7 @@ import json
 
 
 def path_google_sheet():
-    with open('config/excel-addr-sheet-name.json', 'r', encoding='UTF-8') as f:
+    with open('config/backup-sheet-name.json', 'r', encoding='UTF-8') as f:
         _gsheet = json.load(f)
     spreadsheet_url = _gsheet['spreadsheet_url']
     sheet_name = _gsheet['sheet_name']

@@ -38,14 +38,14 @@ def find_existing_sheet_and_duplicate(existing_sheet_name: str, to_copy_sheet_na
     return to_copy_sheet_name, existing_sheet
 
 
-def put_excel_url_sheet_name_to_json_file(spreadsheet_url: str, to_copy_sheet_name: str):
+def backup_sheet_name(spreadsheet_url: str, to_copy_sheet_name: str):
     excel_url_sheet = {
         'spreadsheet_url': spreadsheet_url,
         'sheet_name': to_copy_sheet_name
     }
-    with open('./config/excel-addr-sheet-name.json', 'w', encoding='UTF-8') as f:
+    with open('./config/backup-sheet-name.json', 'w', encoding='UTF-8') as f:
         json.dump(excel_url_sheet, f, indent=2, sort_keys=False)
-        print(f'./config/excel-addr-sheet-name.json에 복사된 시트({to_copy_sheet_name})의 경로를 남겼습니다.')
+        print(f'./config/backup-sheet-name.json에 복사된 시트({to_copy_sheet_name})의 경로를 남겼습니다.')
 
 
 def backup_exchange_rate(existing_sheet: Worksheet):
