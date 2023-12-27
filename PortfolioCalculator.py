@@ -3,7 +3,7 @@ from package.PortfolioCalculatorCommon import path_google_sheet, auth_google_she
 from package.PortfolioCalculatorCommon import convert_portfolio_to_estimate, put_portfolio_to_json_file
 from package.PortfolioCalculatorFillPurple import get_info_ki_from_google_sheet, get_qty_from_kis_developers
 from package.PortfolioCalculatorFillPurple import get_buyable_cash_from_kis_developers, put_mkt_qty_cash_to_google_sheet
-from package.PortfolioCalculatorDuplicate import find_existing_sheet, backup_exchange_rate, put_excel_url_sheet_name_to_json_file
+from package.PortfolioCalculatorDuplicate import find_existing_sheet_and_duplicate, backup_exchange_rate, put_excel_url_sheet_name_to_json_file
 from package.PortfolioCalculatorKI import get_portfolio_from_google_sheet_ki_1, get_portfolio_from_google_sheet_ki_2
 from package.PortfolioCalculatorKI import estimate_portfolio_and_show_progress_ki
 from package.PortfolioCalculatorNH import get_portfolio_from_google_sheet_nh, estimate_portfolio_and_show_progress_nh
@@ -43,8 +43,8 @@ def main():
 
     # Process
     portfolio_input_ki = get_market_from_ticker_book('ki', **portfolio_input_ki)
-    # portfolio_input_ki = get_qty_from_kis_developers(**portfolio_input_ki)
-    # buyable_cash_won_ki = get_buyable_cash_from_kis_developers()
+    portfolio_input_ki = get_qty_from_kis_developers(**portfolio_input_ki)
+    buyable_cash_won_ki = get_buyable_cash_from_kis_developers()
 
     # Output(Google Sheet)
     put_mkt_qty_cash_to_google_sheet(worksheet, ROW_BASE_POINTER_KI, g_row_stack_pointer_ki, buyable_cash_won_ki,
@@ -66,13 +66,11 @@ def main():
     existing_sheet_name = '*dashboard'
     to_copy_sheet_name = datetime.datetime.now().strftime('%Y%m%d')  # ex. 20240101
 
-    # Process
-    to_copy_sheet_name, existing_sheet = find_existing_sheet(existing_sheet_name, to_copy_sheet_name, book)
+    # Process(Google Sheet : *dashboard -> 20240101)
+    to_copy_sheet_name, existing_sheet = find_existing_sheet_and_duplicate(existing_sheet_name, to_copy_sheet_name, book)
 
     # Save(.json)
     backup_exchange_rate(existing_sheet)
-
-    # Duplicate(Google Sheet : *dashboard -> 20240101)
     put_excel_url_sheet_name_to_json_file(spreadsheet_url, to_copy_sheet_name)
 
     g_end_time = time.time()

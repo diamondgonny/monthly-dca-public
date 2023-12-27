@@ -22,7 +22,7 @@ def check_name_conflict(existing_sheet_name: str, to_copy_sheet_name_check: str,
     return to_copy_sheet_name_check
 
 
-def find_existing_sheet(existing_sheet_name: str, to_copy_sheet_name: str, book: Spreadsheet):
+def find_existing_sheet_and_duplicate(existing_sheet_name: str, to_copy_sheet_name: str, book: Spreadsheet):
     existing_sheet = None
     for sheet in book.worksheets():
         if sheet.title == existing_sheet_name:
