@@ -1,0 +1,3 @@
+30 23 {day} {month} * cd (프로젝트 절대경로) && /usr/local/bin/python3 (프로젝트 절대경로)/PortfolioCalculator.py >> (프로젝트 절대경로)/log/log_`date +\%Y\%m\%d`_`date +\%H\%M\%S`_0.log 2>&1
+35 23 {day} {month} * cd (프로젝트 절대경로) && /usr/local/bin/python3 (프로젝트 절대경로)/PortfolioRebalancing.py >> (프로젝트 절대경로)/log/log_`date +\%Y\%m\%d`_`date +\%H\%M\%S`_1.log 2>&1
+0 4 {next_day} {month} * cd (프로젝트 절대경로) && /usr/local/bin/python3 (프로젝트 절대경로)/PortfolioRebalancing.py >> (프로젝트 절대경로)/log/log_`date +\%Y\%m\%d`_`date +\%H\%M\%S`_2.log 2>&1

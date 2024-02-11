@@ -1,0 +1,158 @@
+{
+  "update_date": "2024-02-07 22:51:36",
+  "row_pointer_dict": {
+    "row_base_pointer_1": 2,
+    "row_stack_pointer_1": 8,
+    "row_base_pointer_2": 11,
+    "row_stack_pointer_2": 20,
+    "row_base_pointer_3": 24,
+    "row_stack_pointer_3": 42
+  },
+  "exchange_rate": 1326.33,
+  "buyable_cash_dollar_sum": 1507.9204,
+  "buyable_cash_dollar_list": [
+    486.8362,
+    445.2805,
+    575.8037
+  ],
+  "portfolio_mkt_qty_dict": {
+    "portfolio_mkt_qty_1": {
+      "TLT": [
+        "NASD",
+        310
+      ],
+      "BRK/B": [
+        "NYSE",
+        38
+      ],
+      "XLU": [
+        "AMEX",
+        120
+      ],
+      "AMZN": [
+        "NASD",
+        49
+      ],
+      "GOOG": [
+        "NASD",
+        53
+      ],
+      "MSFT": [
+        "NASD",
+        19
+      ]
+    },
+    "portfolio_mkt_qty_2": {
+      "VTI": [
+        "AMEX",
+        38
+      ],
+      "VEA": [
+        "AMEX",
+        195
+      ],
+      "VWO": [
+        "AMEX",
+        222
+      ],
+      "DBC": [
+        "AMEX",
+        247
+      ],
+      "IAU": [
+        "AMEX",
+        129
+      ],
+      "EDV": [
+        "AMEX",
+        176
+      ],
+      "LTPZ": [
+        "AMEX",
+        241
+      ],
+      "VCLT": [
+        "NASD",
+        69
+      ],
+      "EMLC": [
+        "AMEX",
+        208
+      ]
+    },
+    "portfolio_mkt_qty_3": {
+      "GLDM": [
+        "AMEX",
+        76
+      ],
+      "PDBC": [
+        "NASD",
+        111
+      ],
+      "IEMG": [
+        "AMEX",
+        90
+      ],
+      "VT": [
+        "AMEX",
+        58
+      ],
+      "ITOT": [
+        "AMEX",
+        70
+      ],
+      "MCHI": [
+        "NASD",
+        120
+      ],
+      "VGK": [
+        "AMEX",
+        118
+      ],
+      "EZA": [
+        "AMEX",
+        109
+      ],
+      "EWZ": [
+        "AMEX",
+        128
+      ],
+      "EWW": [
+        "AMEX",
+        33
+      ],
+      "EWJ": [
+        "AMEX",
+        22
+      ],
+      "EWH": [
+        "AMEX",
+        280
+      ],
+      "EWC": [
+        "AMEX",
+        20
+      ],
+      "EMB": [
+        "NASD",
+        19
+      ],
+      "TIP": [
+        "AMEX",
+        42
+      ],
+      "HYG": [
+        "AMEX",
+        18
+      ],
+      "LEMB": [
+        "AMEX",
+        215
+      ],
+      "VGLT": [
+        "NASD",
+        129
+      ]
+    }
+  }
+}
