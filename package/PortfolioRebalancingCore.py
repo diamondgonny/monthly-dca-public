@@ -532,11 +532,13 @@ def sell(ticker='AAPL', market='NASD', qty=1, price=12.34):
     }
     res = requests.post(URL, data=json.dumps(data), headers=headers)
     if res.json()['rt_cd'] == '0':
-        send_message(f'성공!')
+        send_message(f'{ticker} {qty}주 매도주문 -> 성공!')
+        time.sleep(2)  # Discord webhook은 분당 최대 30개의 메시지를 보낼 수 있음
         print(f'{str(res.json())}')
         return True
     else:
-        send_message(f'실패;')
+        send_message(f'{ticker} {qty}주 매도주문 -> 실패;')
+        time.sleep(2)
         print(f'{str(res.json())}')
         return False
 
@@ -566,11 +568,13 @@ def buy(ticker='AAPL', market='NASD', qty=1, price=12.34):
     }
     res = requests.post(URL, data=json.dumps(data), headers=headers)
     if res.json()['rt_cd'] == '0':
-        send_message(f'성공!')
+        send_message(f'{ticker} {qty}주 매수주문 -> 성공!')
+        time.sleep(2)
         print(f'{str(res.json())}')
         return True
     else:
-        send_message(f'실패;')
+        send_message(f'{ticker} {qty}주 매수주문 -> 실패;')
+        time.sleep(2)
         print(f'{str(res.json())}')
         return False
 
@@ -593,7 +597,6 @@ def launch_order(**portfolio_dict):
             if order_qty < 0:
                 order_qty = abs(order_qty)  # 실제 수량으로 변환(절대값)
                 print(ticker, market, order_qty, round(current_price * (1 - SELL_ORDER_DISADVANTAGE_RATE_PCT / 100), 2))
-                send_message(f'{ticker} {order_qty}주 매도')
                 """주의! 실제 매도주문 작동함"""
                 sell(ticker, market, order_qty, round(current_price * (1 - SELL_ORDER_DISADVANTAGE_RATE_PCT / 100), 2))
         time.sleep(5)  # 5초간 대기
@@ -605,6 +608,5 @@ def launch_order(**portfolio_dict):
         current_price = get_current_price(ticker, market)
         if order_qty > 0:
             print(ticker, market, order_qty, round(current_price * (1 + BUY_ORDER_DISADVANTAGE_RATE_PCT / 100), 2))
-            send_message(f'{ticker} {order_qty}주 매수')
             """주의! 실제 매수주문 작동함"""
             buy(ticker, market, order_qty, round(current_price * (1 + BUY_ORDER_DISADVANTAGE_RATE_PCT / 100), 2))
